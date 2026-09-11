@@ -1,4 +1,5 @@
-/*
+
+  /*
     MIT License
     
     Copyright (c) 2025 Christian I. Cabrera || XianFire Framework
@@ -24,69 +25,8 @@
     */
     
 import express from "express";
-import path from "path";
-import session from "express-session";
-import flash from "connect-flash";
-import fs from "fs";
-import hbs from "hbs";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
+import { homePage } from "../controllers/homeController.js";
+const router = express.Router();
+router.get("/", homePage);
 
-import router from "./routes/index.js";
-import janeRouter from "./routes/jane.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
-
-app.use(
-  session({
-    secret: "xianfire-secret-key",
-    resave: false,
-    saveUninitialized: false
-  })
-);
-
-app.use(flash());
-
-app.use((req, res, next) => {
-  res.locals.success_msg = req.flash("success_msg");
-  res.locals.error_msg = req.flash("error_msg");
-  next();
-});
-
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "xian");
-
-hbs.registerPartials(path.join(__dirname, "views", "partials"));
-
-app.engine("xian", (filePath, options, callback) => {
-  fs.readFile(filePath, "utf8", (err, content) => {
-    if (err) return callback(err);
-
-    try {
-      const render = hbs.compile(content);
-      const html = render(options);
-      callback(null, html);
-    } catch (error) {
-      callback(error);
-    }
-  });
-});
-
-app.use("/", router);
-app.use("/jane", janeRouter);
-
-if (!process.env.ELECTRON) {
-  app.listen(PORT, () => {
-    console.log(`🔥 XianFire running at http://localhost:${PORT}`);
-  });
-}
-
-export default app;
+export default router;
